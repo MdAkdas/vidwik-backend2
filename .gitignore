@@ -1,0 +1,5 @@
+vidwik/global_variable.py
+vidwik/settings.py
+media/
+db.sqlite3
+venv/
