@@ -4,7 +4,7 @@ from rest_framework.serializers import ModelSerializer
 
 class VideoSerializer(ModelSerializer):
     class Meta:
-        model = Video
+        model = PublishedVideo
         fields = '__all__'
         depth = 1
 

@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import Video,Tags,Scenes
+from .models import PublishedVideo,Tags,Scenes
 # Register your models here.
 
-@admin.register(Video)
+@admin.register(PublishedVideo)
 class VideoAdmin(admin.ModelAdmin):
     list_display = ('id','title',)
 

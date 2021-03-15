@@ -7,6 +7,8 @@ import os
 def get_video(id):
     try:
         video=Video.objects.get(id=int(id))
+
+
         data={
             "info": {
                 "title": video.title,
