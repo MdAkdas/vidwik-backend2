@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from datetime import datetime
-from .models import TemporaryFiles
+# from .models import TemporaryFiles
 from vidwik.settings import BASE_URL
 
 class FileUploadView(APIView):
