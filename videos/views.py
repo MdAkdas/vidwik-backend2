@@ -11,7 +11,6 @@ from .send_mail import sendMail
 
 class PublishVideo(APIView):
     def post(self, request):
-        print("views")
         return publish_api.publish(request)
 
 

@@ -8,19 +8,30 @@ class PublishVideoSerializer(ModelSerializer):
         fields = '__all__'
         depth = 1
 
-#
-# class SaveVideoSerializer(ModelSerializer):
-#     class Meta:
-#         model = SavedVideo
-#         fields = '__all__'
-#         depth = 1
-#
-#
-# class SceneSerializer(ModelSerializer):
-#     class Meta:
-#         model = Scenes
-#         fields = '__all__'
-#
+
+class SaveVideoSerializer(ModelSerializer):
+    class Meta:
+        model = SavedVideo
+        fields = '__all__'
+        depth = 1
+
+
+class SceneSerializer(ModelSerializer):
+    class Meta:
+        model = Scenes
+        fields = '__all__'
+
+class SubtitleSerializer(ModelSerializer):
+    class Meta:
+        model = Subtitle
+        fields = '__all__'
+
+
+
+class MediaSerializer(ModelSerializer):
+    class Meta:
+        model = Subtitle
+        fields = '__all__'
 
 class TagSerializer(ModelSerializer):
     class Meta:
