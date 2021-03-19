@@ -57,12 +57,13 @@ def publish(request):
         thumbnail_img.close()
         gif.close()
 
-        #tags to saved video
-        # pub_video_details = PublishedVideo.objects.get(id=saved_pub_vid.id)
-        #
-        # for tag in request.data["tags"]:
-        #     t = Tags.objects.get_or_create(tag_text=tag)
-        #     t[0].videos.add(pub_video_details)
+        pub_video_details = PublishedVideo.objects.get(id=saved_pub_vid.id)
+
+        for tag in request.data["tags"]:
+            obj,created = Tags.objects.get_or_create(tag_text=tag)
+            print(obj)
+            print(created)
+            pub_video_details.tags.add(obj.id)
 
         return Response({"Message": "Video  Published", "id": saved_pub_vid.id, "status": status.HTTP_201_CREATED})
 

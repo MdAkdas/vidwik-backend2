@@ -45,13 +45,12 @@ def addScenes(scenes,video):
 
             else:
                 return Response(deserialized_subtitle.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            item_duration = datetime.strptime(str(timedelta(seconds=int(scenes[i]["media"]["item_duration"]))), "%H:%M:%S").time()
             media_data = {
                 "scene": scenes_details.id,
                 "type": scenes[i]["media"]["type"],
                 "media_file": scenes[i]["media"]["media_file"],
                 "item_duration": scenes[i]["media"]["item_duration"],
-                "animation": scenes[i]["media"]["animation"],
             }
 
             deserialized_media =MediaSerializer(data=media_data)
@@ -61,6 +60,11 @@ def addScenes(scenes,video):
 
             else:
                 return Response(deserialized_media.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            for tag in scenes["keywords"]:
+                obj, created = Tags.objects.get_or_create(tag_text=tag)
+                scenes_details.tags.add(obj.id)
+
 
             return Response(status.HTTP_200_OK)
 
@@ -115,13 +119,16 @@ def save(request):
 
         save_video_details = SavedVideo.objects.get(id=saved_vid.id)
         for tag in request.data["tags"]:
-            t = Tags.objects.get_or_create(tag_text=tag)
-            t[0].videos.add(save_video_details)
+            obj, created = Tags.objects.get_or_create(tag_text=tag)
+            save_video_details.tags.add(obj.id)
 
         resp=addScenes(request.data["scenes"], save_video_details)
 
         if resp.status_code==200:
             return Response({"Message": "Video Saved", "id": save_video_details.id, "status": status.HTTP_201_CREATED})
+
+        else:
+            return Response({"Message": "Some Error Occurred", "status": status.HTTP_400_BAD_REQUEST})
 
     else:
         video.close()

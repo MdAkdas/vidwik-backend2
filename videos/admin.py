@@ -1,36 +1,33 @@
 from django.contrib import admin
-from .models import PublishedVideo,Tags, SavedVideo, Scenes,Media, MediaDetails,Subtitle
+from .models import PublishedVideo,Tags, SavedVideo, Scenes,Media,Subtitle
 # Register your models here.
 
 @admin.register(PublishedVideo)
-class VideoAdmin(admin.ModelAdmin):
+class PublishedVideoAdmin(admin.ModelAdmin):
     list_display = ('id','title',)
 
 
-admin.register(SavedVideo)
+@admin.register(SavedVideo)
+class SavedVideoAdmin(admin.ModelAdmin):
+    list_display = ('id','title',)
 
 
-admin.register(MediaDetails)
-
-
-admin.register(Subtitle)
-
-
-
-admin.register(Scenes)
+@admin.register(Subtitle)
+class SubtitleAdmin(admin.ModelAdmin):
+    list_display = ('id',)
 
 
 
-admin.register(Media)
+@admin.register(Scenes)
+class SubtitleAdmin(admin.ModelAdmin):
+    list_display = ('id',)
 
 
+@admin.register(Media)
+class SubtitleAdmin(admin.ModelAdmin):
+    list_display = ('id',)
 
-
-#
-# @admin.register(Scenes)
-# class ScencesAdmin(admin.ModelAdmin):
-#     list_display = ('id','video',)
 
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):
-    list_display = ('id',)
+    list_display = ('id','tag_text')

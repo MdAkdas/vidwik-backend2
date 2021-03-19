@@ -5,7 +5,6 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from videos.models import PublishedVideo
 from .workingAPI import publish_api, update_publish_api, get_video_details, save_video
-from transacaction.models import BuyModel
 from .send_mail import sendMail
 
 
