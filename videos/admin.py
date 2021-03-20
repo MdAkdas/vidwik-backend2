@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import PublishedVideo,Tags, SavedVideo, Scenes,Media,Subtitle
+from .models import PublishedVideo,Tags, SavedVideo, Scenes,Media,Subtitle, Audio
 # Register your models here.
 
 @admin.register(PublishedVideo)
@@ -25,6 +25,10 @@ class SubtitleAdmin(admin.ModelAdmin):
 
 @admin.register(Media)
 class SubtitleAdmin(admin.ModelAdmin):
+    list_display = ('id',)
+
+@admin.register(Audio)
+class AudioAdmin(admin.ModelAdmin):
     list_display = ('id',)
 
 

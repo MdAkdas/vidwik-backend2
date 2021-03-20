@@ -15,7 +15,7 @@ class Tags(models.Model):
 # has user, tag
 class PublishedVideo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)  # FK?
-    tags = models.ManyToManyField(Tags)
+    tags = models.ManyToManyField(Tags,blank=True)
 
     title = models.CharField(max_length=100)
     thumbnail = models.FileField(upload_to='publish/%Y/%m/%d/thumbnail', default=None, null=True)
@@ -33,7 +33,7 @@ class PublishedVideo(models.Model):
 # audio and scene
 class SavedVideo(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    tags = models.ManyToManyField(Tags)
+    tags = models.ManyToManyField(Tags,blank=True)
     # media detail(like, share) not required for saved video?
     # media_library
 
@@ -62,7 +62,7 @@ class Scenes(models.Model):
     title = models.TextField(null=True, blank=True, default="")
     # transition type?
     transition = models.CharField(max_length=200, null=True, blank=True) #todo
-    tags = models.ManyToManyField(Tags)
+    tags = models.ManyToManyField(Tags,blank=True)
 
 
 
@@ -75,8 +75,8 @@ class Subtitle(models.Model):
         ("Right", "right"),
     )
     alignment = models.CharField(max_length=6, choices=alignment_types)
-    font_color = models.CharField(max_length=6)
-    background_color = models.CharField(max_length=6)
+    font_color = models.CharField(max_length=7)
+    background_color = models.CharField(max_length=7)
 
     text_position_types = (
         ("Top", "top"),
@@ -120,11 +120,11 @@ class Media(models.Model):
         ("Zoom In","zoom in"),
         ("Zoom Out","zoom out")
     )
-    animation = models.CharField(max_length=30,choices=animation_type)
+    animation = models.CharField(max_length=30,choices=animation_type, null=True)
 
 # <- scene
 class Audio(models.Model):
-    scene = models.OneToOneField(SavedVideo, on_delete=models.CASCADE)
+    scene = models.OneToOneField(Scenes, on_delete=models.CASCADE)
     aud_types = (
         ("Upload", "upload"),
         ("Narration", "narration")

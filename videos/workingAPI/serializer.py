@@ -30,8 +30,15 @@ class SubtitleSerializer(ModelSerializer):
 
 class MediaSerializer(ModelSerializer):
     class Meta:
-        model = Subtitle
+        model = Media
         fields = '__all__'
+
+
+class AudioSerializer(ModelSerializer):
+    class Meta:
+        model = Audio
+        fields = '__all__'
+
 
 class TagSerializer(ModelSerializer):
     class Meta:
