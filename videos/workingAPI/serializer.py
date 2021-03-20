@@ -21,11 +21,11 @@ class SceneSerializer(ModelSerializer):
         model = Scenes
         fields = '__all__'
 
+
 class SubtitleSerializer(ModelSerializer):
     class Meta:
         model = Subtitle
         fields = '__all__'
-
 
 
 class MediaSerializer(ModelSerializer):

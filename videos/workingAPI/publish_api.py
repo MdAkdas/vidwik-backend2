@@ -12,19 +12,19 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 def publish(request):
     video = open(os.path.join(BASE_DIR, request.data["video"].replace(BASE_URL, "")), "rb")
-    thumbnail_img = open(os.path.join(BASE_DIR, request.data["info"]["image"].replace(BASE_URL, "")), "rb")
+    thumbnail_img = open(os.path.join(BASE_DIR, request.data["thumbnail"].replace(BASE_URL, "")), "rb")
     gif = open(os.path.join(BASE_DIR, request.data["gif"].replace(BASE_URL, "")), "rb")
 
     # info
     try:
-        user_pk = User.objects.get(username=request.data["info"]["user"])
+        user_pk = User.objects.get(username=request.data["user"])
     except:
         return JsonResponse({'error': 'UserDoesNotExist'}, status=status.HTTP_406_NOT_ACCEPTABLE)
-    title = request.data["info"]["title"]
-    description = request.data["info"]["description"]
-    thumbnail = File(thumbnail_img, name=request.data["info"]["image"].split('/')[-1])
-    duration = datetime.strptime(str(timedelta(seconds=int(request.data["info"]["duration"]))), "%H:%M:%S").time()
-    language = request.data["info"]["language"]
+    title = request.data["title"]
+    description = request.data["description"]
+    thumbnail = File(thumbnail_img, name=request.data["thumbnail"].split('/')[-1])
+    duration = datetime.strptime(str(timedelta(seconds=int(request.data["duration"]))), "%H:%M:%S").time()
+    language = request.data["language"]
 
     published_at = datetime.utcnow()
 
@@ -61,14 +61,14 @@ def publish(request):
 
         for tag in request.data["tags"]:
             obj,created = Tags.objects.get_or_create(tag_text=tag)
-            print(obj)
-            print(created)
+            # print(obj)
+            # print(created)
             pub_video_details.tags.add(obj.id)
 
         return Response({"Message": "Video  Published", "id": saved_pub_vid.id, "status": status.HTTP_201_CREATED})
 
     else:
-        print(upload.errors)
+        # print(upload.errors)
         video.close()
         thumbnail_img.close()
         gif.close()

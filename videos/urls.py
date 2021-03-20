@@ -9,6 +9,5 @@ urlpatterns = [
 
     path('publish_video', PublishVideo.as_view()),
     path('save_video', SaveLater.as_view()),
-
     path(r'get_saved_video', GetSavedVideo.as_view())
 ]
