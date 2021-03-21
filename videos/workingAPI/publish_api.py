@@ -17,9 +17,9 @@ def publish(request):
 
     # info
     try:
-        user_pk = User.objects.get(username=request.data["user"])
+        user = User.objects.get(username=request.data["user"])
     except:
-        return JsonResponse({'error': 'UserDoesNotExist'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return JsonResponse({'Message': 'UserDoesNotExist', "status": status.HTTP_400_BAD_REQUEST})
     title = request.data["title"]
     description = request.data["description"]
     thumbnail = File(thumbnail_img, name=request.data["thumbnail"].split('/')[-1])
@@ -36,8 +36,10 @@ def publish(request):
     is_published = bool(request.data["is_published"])
     is_paid = bool(request.data["is_paid"])
 
+    print(user)
+    print(user.pk)
     data = {
-        'user': user_pk.username,
+        # 'user': user.pk,
         'title': title,
         'thumbnail': thumbnail,
         'gif': gif,
@@ -50,7 +52,8 @@ def publish(request):
 
     }
 
-    upload = PublishVideoSerializer(data=data)
+    upload = PublishVideoSerializer(PublishedVideo(user=user),data=data)
+    # upload = PublishVideoSerializer(data=data)
     if upload.is_valid():
         saved_pub_vid = upload.save()
         video.close()
@@ -58,14 +61,13 @@ def publish(request):
         gif.close()
 
         pub_video_details = PublishedVideo.objects.get(id=saved_pub_vid.id)
-
+        # pub_video_details.user.add(user_pk)
         for tag in request.data["tags"]:
             obj,created = Tags.objects.get_or_create(tag_text=tag)
             # print(obj)
             # print(created)
             pub_video_details.tags.add(obj.id)
-
-        return Response({"Message": "Video  Published", "id": saved_pub_vid.id, "status": status.HTTP_201_CREATED})
+        return Response({"Message": "Video  Published", "id": pub_video_details.id, "status": status.HTTP_201_CREATED})
 
     else:
         # print(upload.errors)

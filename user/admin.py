@@ -26,7 +26,11 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'password1', 'password2','email'),
         }),
     )
-    list_display = ('username', 'first_name', 'last_name')
+    list_display = ('id','username', 'first_name', 'last_name')
     search_fields = ('username', 'first_name', 'last_name')
     ordering = ('username',)
     inlines = (UserProfileInline,)
+
+@admin.register(UserProfile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ('id',)

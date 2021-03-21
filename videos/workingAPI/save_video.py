@@ -12,6 +12,7 @@ from .helper_functions import addScenesToVideo
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+
 def save(request):
     video = open(os.path.join(BASE_DIR, request.data["video"].replace(BASE_URL, "")), "rb")
     thumbnail_img = open(os.path.join(BASE_DIR, request.data["thumbnail"].replace(BASE_URL, "")), "rb")
@@ -21,7 +22,8 @@ def save(request):
     try:
         user_pk = User.objects.get(username=request.data["user"])
     except:
-        return JsonResponse({'error': 'UserDoesNotExist'}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return JsonResponse({'Message': 'UserDoesNotExist',"status":status.HTTP_400_BAD_REQUEST})
+
     title = request.data["title"]
     description = request.data["description"]
     thumbnail = File(thumbnail_img, name=request.data["thumbnail"].split('/')[-1])
@@ -36,22 +38,24 @@ def save(request):
     is_paid = bool(request.data["is_paid"])
 
     bg_music_pk = MusicLib.objects.get(title=request.data["bg_music"])
+
     data = {
-        'user': user_pk.username,
+        # 'user': user_pk,
         'title': title,
         'thumbnail': thumbnail,
-        'music_lib': bg_music_pk,
+        # 'music_lib': bg_music_pk,
         'gif': gif_file,
         'video_file': video_file,
         'created_at': created_at,
         'description': description,
         'duration': duration,
         'is_published': is_published,
-        'is_paid':is_paid
+        'is_paid': is_paid
     }
 
-    upload = SaveVideoSerializer(data=data)
-
+    # upload = SaveVideoSerializer(data=data)
+    upload = SaveVideoSerializer(SavedVideo(user=user_pk,music_lib=bg_music_pk), data=data)
+    #
     if upload.is_valid():
         saved_vid = upload.save()
         video.close()
@@ -68,8 +72,10 @@ def save(request):
         addScenesToVideoRes = addScenesToVideo(request.data["scenes"], saved_video_details)
 
         # print("debug3")
-        if addScenesToVideoRes["status"]==201:
-            return Response({"Message": "Video Saved Successfully.", "id": saved_video_details.id, "status": status.HTTP_201_CREATED})
+        if addScenesToVideoRes["status"] == 201:
+            print(saved_video_details)
+            return Response({"Message": "Video Saved Successfully.", "id": saved_video_details.id,
+                             "status": status.HTTP_201_CREATED})
 
         else:
             saved_video_details.delete()
