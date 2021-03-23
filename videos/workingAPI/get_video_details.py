@@ -27,7 +27,6 @@ def get_video(id):
             "tags": []
         }
 
-        # scene -> subtitle and media
         all_scenes = Scenes.objects.filter(video=saved_video_details)
         # print("before all scene")
         for scene in all_scenes:

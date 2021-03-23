@@ -29,22 +29,20 @@ def publish(request):
     published_at = datetime.utcnow()
 
     video_file = File(video, name=request.data["video"].split('/')[-1])
-    tags = request.data["tags"]
 
     gif = File(gif, name=request.data["gif"].split('/')[-1])
-    # collaborate = request.data["collaborate"]
     is_published = bool(request.data["is_published"])
     is_paid = bool(request.data["is_paid"])
 
     print(user)
     print(user.pk)
     data = {
-        # 'user': user.pk,
+        'user': user,
         'title': title,
         'thumbnail': thumbnail,
         'gif': gif,
         'video_file': video_file,
-        'publish_at': published_at,
+        'published_at': published_at,
         'description': description,
         'duration': duration,
         'is_published': is_published,
@@ -52,26 +50,13 @@ def publish(request):
 
     }
 
-    upload = PublishVideoSerializer(PublishedVideo(user=user),data=data)
-    # upload = PublishVideoSerializer(data=data)
-    if upload.is_valid():
-        saved_pub_vid = upload.save()
-        video.close()
-        thumbnail_img.close()
-        gif.close()
+    pub_video_details = PublishedVideo.objects.create(**data)
+    video.close()
+    thumbnail_img.close()
+    gif.close()
 
-        pub_video_details = PublishedVideo.objects.get(id=saved_pub_vid.id)
-        # pub_video_details.user.add(user_pk)
-        for tag in request.data["tags"]:
-            obj,created = Tags.objects.get_or_create(tag_text=tag)
-            # print(obj)
-            # print(created)
-            pub_video_details.tags.add(obj.id)
-        return Response({"Message": "Video  Published", "id": pub_video_details.id, "status": status.HTTP_201_CREATED})
+    for tag in request.data["tags"]:
+        obj,created = Tags.objects.get_or_create(tag_text=tag)
+        pub_video_details.tags.add(obj.id)
 
-    else:
-        # print(upload.errors)
-        video.close()
-        thumbnail_img.close()
-        gif.close()
-        return Response({"Message": "Some Error Occurred", "status": status.HTTP_400_BAD_REQUEST})
+    return Response({"Message": "Video  Published", "id": pub_video_details.id, "status": status.HTTP_201_CREATED})

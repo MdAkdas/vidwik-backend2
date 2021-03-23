@@ -19,7 +19,7 @@ class PublishedVideo(models.Model):
 
     title = models.CharField(max_length=100)
     thumbnail = models.FileField(upload_to='publish/%Y/%m/%d/thumbnail', default=None, null=True)
-    gif = models.FileField(upload_to='publish/gifs/%Y/%m/%d/video', default=None, null=True)
+    gif = models.FileField(upload_to='publish/gifs/%Y/%m/%d/gif', default=None, null=True)
     video_file = models.FileField(upload_to='publish/%Y/%m/%d/video', default=None, null=True)
     published_at = models.DateTimeField(default=timezone.datetime.utcnow, blank=True, null=True)
     description = models.TextField(null=True)

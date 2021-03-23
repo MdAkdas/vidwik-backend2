@@ -18,11 +18,15 @@ def save(request):
     thumbnail_img = open(os.path.join(BASE_DIR, request.data["thumbnail"].replace(BASE_URL, "")), "rb")
     gif = open(os.path.join(BASE_DIR, request.data["gif"].replace(BASE_URL, "")), "rb")
 
-    # info
     try:
         user_pk = User.objects.get(username=request.data["user"])
     except:
         return JsonResponse({'Message': 'UserDoesNotExist',"status":status.HTTP_400_BAD_REQUEST})
+
+    try:
+        published_video_pk = PublishedVideo.objects.get(id=request.data["published_video"])
+    except:
+        return JsonResponse({'Message': 'Published video doest not exist.',"status":status.HTTP_400_BAD_REQUEST})
 
     title = request.data["title"]
     description = request.data["description"]
@@ -39,49 +43,40 @@ def save(request):
 
     bg_music_pk = MusicLib.objects.get(title=request.data["bg_music"])
 
+    print(published_video_pk.id)
     data = {
-        # 'user': user_pk,
+        'user': user_pk,
         'title': title,
         'thumbnail': thumbnail,
-        # 'music_lib': bg_music_pk,
+        'music_lib': bg_music_pk,
         'gif': gif_file,
         'video_file': video_file,
         'created_at': created_at,
         'description': description,
         'duration': duration,
         'is_published': is_published,
-        'is_paid': is_paid
+        'is_paid': is_paid,
+        'published_video': published_video_pk
     }
 
-    # upload = SaveVideoSerializer(data=data)
-    upload = SaveVideoSerializer(SavedVideo(user=user_pk,music_lib=bg_music_pk), data=data)
-    #
-    if upload.is_valid():
-        saved_vid = upload.save()
-        video.close()
-        thumbnail_img.close()
-        gif.close()
+    saved_video_details = SavedVideo.objects.create(**data)
 
-        saved_video_details = SavedVideo.objects.get(id=saved_vid.id)
-        # print("debug1")
-        for tag in request.data["tags"]:
-            obj, created = Tags.objects.get_or_create(tag_text=tag)
-            saved_video_details.tags.add(obj.id)
+    video.close()
+    thumbnail_img.close()
+    gif.close()
 
-        # print("debug2")
-        addScenesToVideoRes = addScenesToVideo(request.data["scenes"], saved_video_details)
+    for tag in request.data["tags"]:
+        obj, created = Tags.objects.get_or_create(tag_text=tag)
+        saved_video_details.tags.add(obj.id)
 
-        # print("debug3")
-        if addScenesToVideoRes["status"] == 201:
-            print(saved_video_details)
-            return Response({"Message": "Video Saved Successfully.", "id": saved_video_details.id,
-                             "status": status.HTTP_201_CREATED})
+    # print("debug2")
+    addScenesToVideoRes = addScenesToVideo(request.data["scenes"], saved_video_details)
 
-        else:
-            saved_video_details.delete()
-            return Response({"Message": addScenesToVideoRes["Message"], "status": status.HTTP_400_BAD_REQUEST})
+    # print("debug3")
+    if addScenesToVideoRes["status"] == 201:
+        return Response({"Message": "Video Saved Successfully.", "id": saved_video_details.id,
+                         "status": status.HTTP_201_CREATED})
+
     else:
-        video.close()
-        thumbnail_img.close()
-        gif.close()
-        return Response({"Message": upload.errors, "status": status.HTTP_400_BAD_REQUEST})
+        saved_video_details.delete()
+        return Response({"Message": addScenesToVideoRes["Message"], "status": status.HTTP_400_BAD_REQUEST})
