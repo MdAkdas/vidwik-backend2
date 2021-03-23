@@ -9,13 +9,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from .serializer import SaveVideoSerializer
 from .helper_functions import addScenesToVideo
+from .thumbnail_gif import to_thumbnail, to_gif
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def save(request):
     video = open(os.path.join(BASE_DIR, request.data["video"].replace(BASE_URL, "")), "rb")
-    thumbnail_img = open(os.path.join(BASE_DIR, request.data["thumbnail"].replace(BASE_URL, "")), "rb")
     gif = open(os.path.join(BASE_DIR, request.data["gif"].replace(BASE_URL, "")), "rb")
 
     try:
@@ -23,16 +23,20 @@ def save(request):
     except:
         return JsonResponse({'Message': 'UserDoesNotExist',"status":status.HTTP_400_BAD_REQUEST})
 
-    try:
+    if request.data["published_video"]!=None:
         published_video_pk = PublishedVideo.objects.get(id=request.data["published_video"])
-    except:
-        return JsonResponse({'Message': 'Published video doest not exist.',"status":status.HTTP_400_BAD_REQUEST})
+    else:
+        published_video_pk = request.data["published_video"]
 
     title = request.data["title"]
     description = request.data["description"]
-    thumbnail = File(thumbnail_img, name=request.data["thumbnail"].split('/')[-1])
     duration = datetime.strptime(str(timedelta(seconds=int(request.data["duration"]))), "%H:%M:%S").time()
     language = request.data["language"]
+
+    #thumbnail
+    thumbnail_url = to_thumbnail(request.data["video"].replace(BASE_URL, ""))
+    thumbnail_bin = open(os.path.join(BASE_DIR, thumbnail_url), "rb")
+    thumbnail = File(thumbnail_bin, name=thumbnail_url.split('/')[-1])
 
     created_at = datetime.utcnow()
 
@@ -43,7 +47,7 @@ def save(request):
 
     bg_music_pk = MusicLib.objects.get(title=request.data["bg_music"])
 
-    print(published_video_pk.id)
+    print(published_video_pk)
     data = {
         'user': user_pk,
         'title': title,
@@ -62,7 +66,7 @@ def save(request):
     saved_video_details = SavedVideo.objects.create(**data)
 
     video.close()
-    thumbnail_img.close()
+    thumbnail_bin.close()
     gif.close()
 
     for tag in request.data["tags"]:

@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 from videos.models import PublishedVideo
 from .workingAPI import publish_api, get_video_details, save_video
 from .send_mail import sendMail
-
+from .models import PublishedVideo
 
 class PublishVideo(APIView):
     def post(self, request):
@@ -23,3 +23,13 @@ class GetSavedVideo(APIView):
         id = request.GET.get("id")
         print(id)
         return get_video_details.get_video(id)
+
+class ForkVideo(APIView):
+    def get(self, request):
+        user = request.GET.get("user")
+        published_video = request.GET.get("published_video")
+        publish_video_details = PublishedVideo.objects.get(id=published_video)
+        #todo create a new object with new user and save
+        publish_video_details.user=user
+        publish_video_details.id=None
+        publish_video_details.save()

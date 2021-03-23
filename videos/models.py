@@ -150,3 +150,7 @@ class Audio(models.Model):
 # class TemporaryFiles(models.Model):
 #     created_at = models.DateTimeField(default=timezone.datetime.utcnow)
 #     temp_file = models.FileField(upload_to="temporary/%Y/%m/%d")
+
+class Fork(models.Model):
+    user = models.ForeignKey(User,on_delete=models.SET_NULL, null=True)
+    published_video = models.ForeignKey(PublishedVideo,on_delete=models.SET_NULL, null=True)
