@@ -6,7 +6,9 @@ from rest_framework.viewsets import ModelViewSet
 from videos.models import PublishedVideo
 from .workingAPI import publish_api, get_video_details, save_video
 from .send_mail import sendMail
-from .models import PublishedVideo
+from .models import PublishedVideo, User, SavedVideo, Fork
+from rest_framework import status
+
 
 class PublishVideo(APIView):
     def post(self, request):
@@ -18,18 +20,80 @@ class SaveLater(APIView):
         return save_video.save(request)
 
 
-class GetSavedVideo(APIView):
+class SavedVideoDetails(APIView):
     def get(self, request):
-        id = request.GET.get("id")
-        print(id)
-        return get_video_details.get_video(id)
+
+        if request.GET.get("published_video_id") != None:
+            save_video = SavedVideo.objects.get(published_video_id=request.GET.get("published_video_id"))
+            save_video_id = save_video.id
+
+        else:
+            save_video_id = request.GET.get("saved_video_id")
+
+        print(save_video_id)
+        return get_video_details.get_video(str(save_video_id))
+
+        # id = request.GET.get("id")
+        # print(id)
+        # return get_video_details.get_video(id)
+
 
 class ForkVideo(APIView):
     def get(self, request):
-        user = request.GET.get("user")
-        published_video = request.GET.get("published_video")
-        publish_video_details = PublishedVideo.objects.get(id=published_video)
-        #todo create a new object with new user and save
-        publish_video_details.user=user
-        publish_video_details.id=None
-        publish_video_details.save()
+        username = request.GET.get("user")
+        published_video_id = request.GET.get("published_video_id")
+
+        user_pk = User.objects.get(username=username)
+        print(user_pk)
+        publish_pk = PublishedVideo.objects.get(id=published_video_id)
+        print(publish_pk)
+        new_forked = Fork.objects.create(user=user_pk, published_video=publish_pk)
+        return JsonResponse(
+            {"message": "Forked Successfully", "id": new_forked.id, "status": status.HTTP_201_CREATED})
+#
+#
+# class EditVideo(APIView):
+#     def get(self, request):
+#         forked_video_id = request.GET.get("published_video_id")
+#         print(forked_video_id)
+#         save_video_id = SavedVideo.objects.get(published_video_id=forked_video_id)
+#         print(save_video_id.id)
+#         return get_video_details.get_video(str(save_video_id.id))
+
+
+# edit for saved video ?
+# user token
+
+class UserVideos(APIView):
+    # permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.method == 'GET':
+            username = request.GET.get("user")
+            print(username)
+            user_pk = User.objects.get(username=username)
+            print(user_pk)
+            print(PublishedVideo.objects.filter(user=user_pk))
+
+            vidoes = {
+                'published_video': list(PublishedVideo.objects.filter(user=user_pk).values(
+                    'id', 'user__username', 'title', 'description', 'thumbnail', 'video_file',
+                    'user__first_name', 'user__last_name',
+                    'published_at', 'duration', 'is_published'
+                )),
+                'saved_video': list(SavedVideo.objects.filter(user=user_pk).values(
+                    'id', 'user__username', 'title', 'description', 'thumbnail', 'video_file',
+                    'user__first_name', 'user__last_name',
+                    'created_at', 'duration', 'is_published'
+                )),
+
+                'forked_video': list(Fork.objects.filter(user=user_pk).values(
+                    'id', 'published_video__title', 'user__username', 'published_video__description',
+                    'published_video__thumbnail',
+                    'published_video__video_file',
+                    'user__first_name', 'user__last_name',
+                    'published_video__published_at', 'published_video__duration', 'published_video__is_paid'
+                )),
+            }
+
+            return JsonResponse(vidoes)

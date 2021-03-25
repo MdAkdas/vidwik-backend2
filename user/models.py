@@ -11,7 +11,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'username'
 
     def __str__(self):
-        return "{}".format(self.email)
+        return self.username
 
 
 class UserProfile(models.Model):

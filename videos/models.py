@@ -18,9 +18,9 @@ class PublishedVideo(models.Model):
     tags = models.ManyToManyField(Tags,blank=True)
 
     title = models.CharField(max_length=100)
-    thumbnail = models.FileField(upload_to='publish/%Y/%m/%d/thumbnail', default=None, null=True)
-    gif = models.FileField(upload_to='publish/gifs/%Y/%m/%d/gif', default=None, null=True)
-    video_file = models.FileField(upload_to='publish/%Y/%m/%d/video', default=None, null=True)
+    thumbnail = models.FileField(upload_to='publish/%Y/%m/%d/thumbnails', default=None, null=True)
+    gif = models.FileField(upload_to='publish//%Y/%m/%d/gifs', default=None, null=True)
+    video_file = models.FileField(upload_to='publish/%Y/%m/%d/videos', default=None, null=True)
     published_at = models.DateTimeField(default=timezone.datetime.utcnow, blank=True, null=True)
     description = models.TextField(null=True)
     duration = models.TimeField(default=timezone.datetime.utcnow, null=True)
@@ -43,9 +43,9 @@ class SavedVideo(models.Model):
     is_paid = models.BooleanField(default=False, blank=True, null=True)
     is_published = models.BooleanField(default=False, blank=True, null=True)
     title = models.CharField(max_length=100)
-    thumbnail = models.FileField(upload_to='saved/%Y/%m/%d/thumbnail', default=None, null=True)
+    thumbnail = models.FileField(upload_to='saved/%Y/%m/%d/thumbnails', default=None, null=True)
     gif = models.FileField(upload_to='saved/%Y/%m/%d/gifs', default=None, null=True)
-    video_file = models.FileField(upload_to='saved/%Y/%m/%d/video', default=None, null=True)
+    video_file = models.FileField(upload_to='saved/%Y/%m/%d/videos', default=None, null=True)
     created_at = models.DateTimeField(default=timezone.datetime.utcnow, blank=True, null=True)
     description = models.TextField(null=True)
     duration = models.TimeField(default=timezone.datetime.utcnow, null=True)
@@ -130,7 +130,7 @@ class Audio(models.Model):
         ("Narration", "narration")
     )
     audio_type = models.CharField(max_length=20,choices=aud_types)
-    audio_file = models.FileField(upload_to='saved/audio/%Y/%m/%d/video', default=None, null=True)
+    audio_file = models.FileField(upload_to='saved/%Y/%m/%d/audio', default=None, null=True)
 
 
 

@@ -20,6 +20,7 @@ def get_video(id):
             "bg_music": saved_video_details.music_lib.title,
             "gif": os.path.join(BASE_URL, saved_video_details.gif.url[1:]),
             "is_published": saved_video_details.is_published,
+            'published_video': saved_video_details.published_video.id,
             "is_paid": saved_video_details.is_paid,
             "scenes": {
 
