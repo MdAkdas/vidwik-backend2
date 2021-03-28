@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from videos.models import PublishedVideo
-from .workingAPI import publish_api, get_video_details, save_video
+from .workingAPI import publish_api, get_video_details, save_video, update_saved_video
 from .send_mail import sendMail
 from .models import PublishedVideo, User, SavedVideo, Fork
 from rest_framework import status
@@ -15,14 +15,14 @@ class PublishVideo(APIView):
         return publish_api.publish(request)
 
 
-class SaveLater(APIView):
+class SaveVideo(APIView):
     def post(self, request):
         return save_video.save(request)
 
 
 class SavedVideoDetails(APIView):
     def get(self, request):
-
+        # what if user want to update the publish video only
         if request.GET.get("published_video_id") != None:
             save_video = SavedVideo.objects.get(published_video_id=request.GET.get("published_video_id"))
             save_video_id = save_video.id
@@ -38,6 +38,11 @@ class SavedVideoDetails(APIView):
         # return get_video_details.get_video(id)
 
 
+class UpdateSavedVideo(APIView):
+    def post(self, request):
+        return update_saved_video.update_video.save(request)
+
+
 class ForkVideo(APIView):
     def get(self, request):
         username = request.GET.get("user")
@@ -50,6 +55,8 @@ class ForkVideo(APIView):
         new_forked = Fork.objects.create(user=user_pk, published_video=publish_pk)
         return JsonResponse(
             {"message": "Forked Successfully", "id": new_forked.id, "status": status.HTTP_201_CREATED})
+
+
 #
 #
 # class EditVideo(APIView):
@@ -73,9 +80,8 @@ class UserVideos(APIView):
             print(username)
             user_pk = User.objects.get(username=username)
             print(user_pk)
-            print(PublishedVideo.objects.filter(user=user_pk))
 
-            vidoes = {
+            videos = {
                 'published_video': list(PublishedVideo.objects.filter(user=user_pk).values(
                     'id', 'user__username', 'title', 'description', 'thumbnail', 'video_file',
                     'user__first_name', 'user__last_name',
@@ -96,4 +102,6 @@ class UserVideos(APIView):
                 )),
             }
 
-            return JsonResponse(vidoes)
+            return JsonResponse(videos)
+
+# Do it through authenticated user.
