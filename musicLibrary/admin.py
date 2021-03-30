@@ -3,4 +3,6 @@ from .models import MusicLib
 
 # Register your models here.
 
-admin.site.register(MusicLib)
+@admin.register(MusicLib)
+class MusicLibAdmin(admin.ModelAdmin):
+    list_display = ('id','title',)

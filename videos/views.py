@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from videos.models import PublishedVideo
@@ -12,7 +13,23 @@ from rest_framework import status
 
 class PublishVideo(APIView):
     def post(self, request):
-        return publish_api.publish(request)
+        # save then publish
+
+        # {"Message":"Video Saved Successfully.","id":42,"status":201}
+        save_response = save_video.save(request)
+
+        if save_response["status"] == 201:
+            save_video_id = save_response["id"]
+
+            publish_response = publish_api.publish(request)
+
+            if publish_response["status"] == 201:
+                SavedVideo.objects.filter(id=save_video_id).update(is_published=True, published_id=publish_response["id"])
+                return publish_response
+            else:
+                return Response({"Message": publish_response["Message"], "status": status.HTTP_400_BAD_REQUEST})
+        else:
+            return Response({"Message": save_response["Message"], "status": status.HTTP_400_BAD_REQUEST})
 
 
 class SaveVideo(APIView):
@@ -23,11 +40,13 @@ class SaveVideo(APIView):
 class SavedVideoDetails(APIView):
     def get(self, request):
         # what if user want to update the publish video only
-        if request.GET.get("published_video_id") != None:
-            save_video = SavedVideo.objects.get(published_video_id=request.GET.get("published_video_id"))
+        if request.GET.get("published_id") != None:
+            print(request.GET.get("published_id"))
+            save_video = SavedVideo.objects.get(published_id=request.GET.get("published_id"))
             save_video_id = save_video.id
 
         else:
+            print(request.GET.get("saved_video_id"))
             save_video_id = request.GET.get("saved_video_id")
 
         print(save_video_id)
@@ -40,32 +59,32 @@ class SavedVideoDetails(APIView):
 
 class UpdateSavedVideo(APIView):
     def post(self, request):
-        return update_saved_video.update_video.save(request)
+        return update_saved_video.update_video(request)
 
 
 class ForkVideo(APIView):
     def get(self, request):
         username = request.GET.get("user")
-        published_video_id = request.GET.get("published_video_id")
+        published_id = request.GET.get("published_id")
 
         user_pk = User.objects.get(username=username)
         print(user_pk)
-        publish_pk = PublishedVideo.objects.get(id=published_video_id)
+        publish_pk = PublishedVideo.objects.get(id=published_id)
         print(publish_pk)
-        new_forked = Fork.objects.create(user=user_pk, published_video=publish_pk)
+        new_forked = Fork.objects.create(user=user_pk, published_id=publish_pk)
         return JsonResponse(
             {"message": "Forked Successfully", "id": new_forked.id, "status": status.HTTP_201_CREATED})
 
 
-#
-#
-# class EditVideo(APIView):
-#     def get(self, request):
-#         forked_video_id = request.GET.get("published_video_id")
-#         print(forked_video_id)
-#         save_video_id = SavedVideo.objects.get(published_video_id=forked_video_id)
-#         print(save_video_id.id)
-#         return get_video_details.get_video(str(save_video_id.id))
+
+
+class EditForkedVideo(APIView):
+    def get(self, request):
+        published_id = request.GET.get("published_id")
+        print(published_id)
+        save_video = SavedVideo.objects.get(published_id=published_id)
+        print(save_video.id)
+        return get_video_details.get_video(str(save_video.id))
 
 
 # edit for saved video ?
@@ -94,11 +113,11 @@ class UserVideos(APIView):
                 )),
 
                 'forked_video': list(Fork.objects.filter(user=user_pk).values(
-                    'id', 'published_video__title', 'user__username', 'published_video__description',
-                    'published_video__thumbnail',
-                    'published_video__video_file',
+                    'id', 'published_id__title', 'user__username', 'published_id__description',
+                    'published_id__thumbnail',
+                    'published_id__video_file',
                     'user__first_name', 'user__last_name',
-                    'published_video__published_at', 'published_video__duration', 'published_video__is_paid'
+                    'published_id__published_at', 'published_id__duration', 'published_id__is_paid'
                 )),
             }
 

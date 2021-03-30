@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 
 # subtitle OTO scene
-def addSceneToSubtitle(subtitle, scene):
+def addSubtitleToScene(subtitle, scene):
     subtitle_data = {
         "scene": scene.id,
         "alignment": subtitle["alignment"],
@@ -37,7 +37,7 @@ def addSceneToSubtitle(subtitle, scene):
 
 
 # Media OTO scene
-def addSceneToMedia(media, scene):
+def addMediaToScene(media, scene):
     item_duration = datetime.strptime(str(timedelta(seconds=int(media["item_duration"]))), "%H:%M:%S").time()
     bin_med_file = open(os.path.join(BASE_DIR, media["media_file"].replace(BASE_URL, "")), "rb")
     media_file = File(bin_med_file, name=media["media_file"].split('/')[-1])
@@ -67,7 +67,7 @@ def addSceneToMedia(media, scene):
 
 
 # Audio OTO scene
-def addSceneToAudio(audio, scene):
+def addAudioToScene(audio, scene):
     bin_aud_file = open(os.path.join(BASE_DIR, audio["audio_file"].replace(BASE_URL, "")), "rb")
     audio_file = File(bin_aud_file, name=audio["audio_file"].split('/')[-1])
     # print(scene.id)
@@ -96,7 +96,7 @@ def addScenesToVideo(scenes, video):
         scene_data = {
             "order": int(i),
             "title": scenes[i]["title"],
-            "transition": "left_to_right",
+            "transition": scenes[i]["transition"],
             "video": video.id
         }
         # print("debug4")
@@ -114,7 +114,7 @@ def addScenesToVideo(scenes, video):
 
             # print("debug7")
 
-            subtitle_response = addSceneToSubtitle(scenes[i]["subtitle"], scenes_details)
+            subtitle_response = addSubtitleToScene(scenes[i]["subtitle"], scenes_details)
             # print("debug8")
             # print(subtitle_response)
             if subtitle_response["status"] != 201:
@@ -122,14 +122,14 @@ def addScenesToVideo(scenes, video):
                 return subtitle_response
 
             # print("debug8.1")
-            media_response = addSceneToMedia(scenes[i]["media"], scenes_details)
+            media_response = addMediaToScene(scenes[i]["media"], scenes_details)
             # print("debug9")
             # print(media_response)
             if media_response["status"] != 201:
                 scenes_details.delete()
                 return media_response
 
-            add_audio_response = addSceneToAudio(scenes[i]["audio"], scenes_details)
+            add_audio_response = addAudioToScene(scenes[i]["audio"], scenes_details)
             # print("debug10")
             # print(add_audio_response)
             if add_audio_response["status"] != 201:

@@ -16,58 +16,60 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 def save(request):
     video = open(os.path.join(BASE_DIR, request.data["video"].replace(BASE_URL, "")), "rb")
-    gif = open(os.path.join(BASE_DIR, request.data["gif"].replace(BASE_URL, "")), "rb")
 
     try:
-        user_pk = User.objects.get(username=request.data["user"])
+        user_pk = User.objects.get(id=request.data["user_id"])
     except:
         return JsonResponse({'Message': 'UserDoesNotExist',"status":status.HTTP_400_BAD_REQUEST})
 
-    if request.data["published_video"]!=None:
-        published_video_pk = PublishedVideo.objects.get(id=request.data["published_video"])
+    if request.data["published_id"]!=None:
+        published_id = PublishedVideo.objects.get(id=request.data["published_id"])
     else:
-        published_video_pk = request.data["published_video"]
+        published_id = request.data["published_id"]
 
     title = request.data["title"]
     description = request.data["description"]
     duration = datetime.strptime(str(timedelta(seconds=int(request.data["duration"]))), "%H:%M:%S").time()
     language = request.data["language"]
 
-    #thumbnail
+    # thumbnail
     thumbnail_url = to_thumbnail(request.data["video"].replace(BASE_URL, ""))
     thumbnail_bin = open(os.path.join(BASE_DIR, thumbnail_url), "rb")
     thumbnail = File(thumbnail_bin, name=thumbnail_url.split('/')[-1])
-
+    # gif
+    gif_url = to_gif(request.data["video"].replace(BASE_URL, ""))
+    gif_bin = open(os.path.join(BASE_DIR, gif_url), "rb")
+    gif = File(gif_bin, name=gif_url.split('/')[-1])
     created_at = datetime.utcnow()
 
     video_file = File(video, name=request.data["video"].split('/')[-1])
-    gif_file = File(gif, name=request.data["gif"].split('/')[-1])
     is_published = bool(request.data["is_published"])
     is_paid = bool(request.data["is_paid"])
 
-    bg_music_pk = MusicLib.objects.get(title=request.data["bg_music"])
+    bg_music_pk = MusicLib.objects.get(id=request.data["bg_music_id"])
 
-    print(published_video_pk)
+    print(published_id)
     data = {
         'user': user_pk,
         'title': title,
         'thumbnail': thumbnail,
         'music_lib': bg_music_pk,
-        'gif': gif_file,
+        'gif': gif,
         'video_file': video_file,
         'created_at': created_at,
         'description': description,
         'duration': duration,
         'is_published': is_published,
         'is_paid': is_paid,
-        'published_video': published_video_pk
+        'published_id': published_id,
+        'language': language
     }
 
     saved_video_details = SavedVideo.objects.create(**data)
 
     video.close()
     thumbnail_bin.close()
-    gif.close()
+    gif_bin.close()
 
     for tag in request.data["tags"]:
         obj, created = Tags.objects.get_or_create(tag_text=tag)

@@ -24,8 +24,8 @@ class PublishedVideo(models.Model):
     published_at = models.DateTimeField(default=timezone.datetime.utcnow, blank=True, null=True)
     description = models.TextField(null=True)
     duration = models.TimeField(default=timezone.datetime.utcnow, null=True)
-    is_published = models.BooleanField(default=False, blank=True, null=True)  # why?
     is_paid = models.BooleanField(default=False, blank=True, null=True)
+    language = models.CharField(max_length=50, default="en")
 
 
 
@@ -49,8 +49,8 @@ class SavedVideo(models.Model):
     created_at = models.DateTimeField(default=timezone.datetime.utcnow, blank=True, null=True)
     description = models.TextField(null=True)
     duration = models.TimeField(default=timezone.datetime.utcnow, null=True)
-    published_video = models.OneToOneField(PublishedVideo, on_delete=models.DO_NOTHING, null=True, blank=True)
-
+    published_id = models.OneToOneField(PublishedVideo, on_delete=models.DO_NOTHING, null=True, blank=True)
+    language = models.CharField(max_length=50, default="en")
 
 
 
@@ -153,4 +153,4 @@ class Audio(models.Model):
 
 class Fork(models.Model):
     user = models.ForeignKey(User,on_delete=models.SET_NULL, null=True)
-    published_video = models.ForeignKey(PublishedVideo,on_delete=models.SET_NULL, null=True)
+    published_id = models.ForeignKey(PublishedVideo,on_delete=models.SET_NULL, null=True)
