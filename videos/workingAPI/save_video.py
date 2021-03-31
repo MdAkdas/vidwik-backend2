@@ -64,9 +64,9 @@ def save(request):
         'published_id': published_id,
         'language': language
     }
-
+    print(data)
     saved_video_details = SavedVideo.objects.create(**data)
-
+    print("saved_video_details", saved_video_details)
     video.close()
     thumbnail_bin.close()
     gif_bin.close()
@@ -77,12 +77,12 @@ def save(request):
 
     # print("debug2")
     addScenesToVideoRes = addScenesToVideo(request.data["scenes"], saved_video_details)
-
+    print("addScenesToVideoRes",addScenesToVideoRes)
     # print("debug3")
     if addScenesToVideoRes["status"] == 201:
-        return Response({"Message": "Video Saved Successfully.", "id": saved_video_details.id,
-                         "status": status.HTTP_201_CREATED})
+        return {"Message": "Video Saved Successfully.", "id": saved_video_details.id,
+                         "status": status.HTTP_201_CREATED}
 
     else:
         saved_video_details.delete()
-        return Response({"Message": addScenesToVideoRes["Message"], "status": status.HTTP_400_BAD_REQUEST})
+        return {"Message": addScenesToVideoRes["Message"], "status": status.HTTP_400_BAD_REQUEST}

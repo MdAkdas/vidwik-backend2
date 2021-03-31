@@ -20,7 +20,7 @@ def get_video(id):
             "bg_music": saved_video_details.music_lib.title,
             "gif": os.path.join(BASE_URL, saved_video_details.gif.url[1:]),
             "is_published": saved_video_details.is_published,
-            'published_video': saved_video_details.published_video.id,
+            'published_id': saved_video_details.published_id_id,
             "is_paid": saved_video_details.is_paid,
             "scenes": {
 
@@ -50,14 +50,17 @@ def get_video(id):
             subtitle_info = Subtitle.objects.get(scene=scene)
 
             data["scenes"][str(scene.order)]["subtitle"] = {
-                "alignment": subtitle_info.alignment,
-                "font_color": subtitle_info.font_color,
-                "background_color": subtitle_info.font_color,
-                "text_position": subtitle_info.text_position,
+
                 "text": subtitle_info.text,
-                "font_style": subtitle_info.font_style,
-                "font_size": subtitle_info.font_size,
-                "font_type": subtitle_info.font_type
+                "style": {
+                    "alignment": subtitle_info.alignment,
+                    "font_color": subtitle_info.font_color,
+                    "background_color": subtitle_info.font_color,
+                    "text_position": subtitle_info.text_position,
+                    "font_style": subtitle_info.font_style,
+                    "font_size": subtitle_info.font_size,
+                    "font_type": subtitle_info.font_type
+                }
             }
 
             # print("before Media")

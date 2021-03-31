@@ -61,4 +61,4 @@ def publish(request):
         obj, created = Tags.objects.get_or_create(tag_text=tag)
         pub_video_details.tags.add(obj.id)
 
-    return Response({"Message": "Video  Published", "id": pub_video_details.id, "status": status.HTTP_201_CREATED})
+    return {"Message": "Video  Published", "id": pub_video_details.id, "status": status.HTTP_201_CREATED}

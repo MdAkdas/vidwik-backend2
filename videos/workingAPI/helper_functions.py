@@ -13,14 +13,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 def addSubtitleToScene(subtitle, scene):
     subtitle_data = {
         "scene": scene.id,
-        "alignment": subtitle["alignment"],
-        "font_color": subtitle["font_color"],
-        "background_color": subtitle["background_color"],
-        "text_position": subtitle["text_position"],
+        "alignment": subtitle["style"]["alignment"],
+        "font_color": subtitle["style"]["font_color"],
+        "background_color": subtitle["style"]["background_color"],
+        "text_position": subtitle["style"]["text_position"],
         "text": subtitle["text"],
-        "font_style": subtitle["font_style"],
-        "font_size": subtitle["font_size"],
-        "font_type": subtitle["font_type"],
+        "font_style": subtitle["style"]["font_style"],
+        "font_size": subtitle["style"]["font_size"],
+        "font_type": subtitle["style"]["font_type"],
     }
 
     deserialized_subtitle = SubtitleSerializer(data=subtitle_data)

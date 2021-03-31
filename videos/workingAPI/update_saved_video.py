@@ -23,10 +23,10 @@ def update_video(request):
     except:
         return JsonResponse({'Message': 'UserDoesNotExist', "status": status.HTTP_400_BAD_REQUEST})
 
-    if request.data["published_video"] != None:
-        published_video_pk = PublishedVideo.objects.get(id=request.data["published_video"])
+    if request.data["published_id"] != None:
+        published_id = PublishedVideo.objects.get(id=request.data["published_id"])
     else:
-        published_video_pk = request.data["published_video"]
+        published_id = request.data["published_id"]
 
     title = request.data["title"]
     description = request.data["description"]
@@ -62,11 +62,26 @@ def update_video(request):
         'duration': duration,
         'is_published': is_published,
         'is_paid': is_paid,
-        'published_video': published_video_pk
+        'published_id': published_id,
+        'language': language
     }
-    SavedVideo.objects.filter(pk=save_video_id).update(**data)
-    updated_saved_video_details = SavedVideo.objects.get(id=save_video_id)
-    print(updated_saved_video_details)
+    print(data)
+    save_video = SavedVideo.objects.get(id=save_video_id)
+    save_video.title=title
+    save_video.thumbnail=thumbnail
+    save_video.music_lib=bg_music_pk
+    save_video.gif=gif
+    save_video.video_file=video_file
+    save_video.created_at=created_at
+    save_video.description=description
+    save_video.duration=duration
+    save_video.is_published=is_published
+    save_video.is_paid=is_paid
+    save_video.published_id=published_id
+    save_video.language=language
+    save_video.save()
+
+    updated_saved_video_details = SavedVideo.objects.get(id=save_video.id)
     video.close()
     thumbnail_bin.close()
     gif_bin.close()

@@ -17,36 +17,44 @@ class PublishVideo(APIView):
 
         # {"Message":"Video Saved Successfully.","id":42,"status":201}
         save_response = save_video.save(request)
-
+        print("save response: ",save_response)
+        save_video_id = save_response["id"]
         if save_response["status"] == 201:
-            save_video_id = save_response["id"]
-
             publish_response = publish_api.publish(request)
+            published_id = publish_response["id"]
+            print("publish response: ", publish_response)
 
             if publish_response["status"] == 201:
                 SavedVideo.objects.filter(id=save_video_id).update(is_published=True, published_id=publish_response["id"])
-                return publish_response
+                return Response(publish_response)
+
             else:
+                SavedVideo.objects.get(id=save_video_id).delete()
+                PublishedVideo.objects.get(id=published_id).delete()
                 return Response({"Message": publish_response["Message"], "status": status.HTTP_400_BAD_REQUEST})
         else:
+            SavedVideo.objects.get(id=save_video_id).delete()
             return Response({"Message": save_response["Message"], "status": status.HTTP_400_BAD_REQUEST})
 
 
 class SaveVideo(APIView):
     def post(self, request):
-        return save_video.save(request)
+        response_dict = save_video.save(request)
+        return Response(response_dict)
 
 
 class SavedVideoDetails(APIView):
     def get(self, request):
         # what if user want to update the publish video only
-        if request.GET.get("published_id") != None:
-            print(request.GET.get("published_id"))
+        print("published_id", request.GET.get("published_id"))
+
+        if request.GET.get("published_id") != 'None':
+            print("published_id", request.GET.get("published_id"))
             save_video = SavedVideo.objects.get(published_id=request.GET.get("published_id"))
             save_video_id = save_video.id
 
         else:
-            print(request.GET.get("saved_video_id"))
+            print("saved_video_id",request.GET.get("saved_video_id"))
             save_video_id = request.GET.get("saved_video_id")
 
         print(save_video_id)
@@ -64,10 +72,10 @@ class UpdateSavedVideo(APIView):
 
 class ForkVideo(APIView):
     def get(self, request):
-        username = request.GET.get("user")
+        user_id = request.GET.get("user_id")
         published_id = request.GET.get("published_id")
 
-        user_pk = User.objects.get(username=username)
+        user_pk = User.objects.get(id=user_id)
         print(user_pk)
         publish_pk = PublishedVideo.objects.get(id=published_id)
         print(publish_pk)
@@ -78,17 +86,17 @@ class ForkVideo(APIView):
 
 
 
-class EditForkedVideo(APIView):
+class EditForkVideo(APIView):
     def get(self, request):
-        published_id = request.GET.get("published_id")
+        print("in edit_fork_video")
+        fork_id = request.GET.get("fork_id")
+        published_id = Fork.objects.get(id=fork_id).published_id
         print(published_id)
         save_video = SavedVideo.objects.get(published_id=published_id)
         print(save_video.id)
-        return get_video_details.get_video(str(save_video.id))
+        video_details = get_video_details.get_video(str(save_video.id))
+        return video_details
 
-
-# edit for saved video ?
-# user token
 
 class UserVideos(APIView):
     # permission_classes = [IsAuthenticated]
@@ -104,7 +112,7 @@ class UserVideos(APIView):
                 'published_video': list(PublishedVideo.objects.filter(user=user_pk).values(
                     'id', 'user__username', 'title', 'description', 'thumbnail', 'video_file',
                     'user__first_name', 'user__last_name',
-                    'published_at', 'duration', 'is_published'
+                    'published_at', 'duration'
                 )),
                 'saved_video': list(SavedVideo.objects.filter(user=user_pk).values(
                     'id', 'user__username', 'title', 'description', 'thumbnail', 'video_file',
