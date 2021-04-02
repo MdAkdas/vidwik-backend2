@@ -17,7 +17,7 @@ class PublishVideo(APIView):
 
         # {"Message":"Video Saved Successfully.","id":42,"status":201}
         save_response = save_video.save(request)
-        print("save response: ",save_response)
+        print("save response: ", save_response)
         save_video_id = save_response["id"]
         if save_response["status"] == 201:
             publish_response = publish_api.publish(request)
